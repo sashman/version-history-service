@@ -39,6 +39,16 @@ func (c *VersionController) Create(rw http.ResponseWriter, r *http.Request, db *
     }
     
     versions := db.C("versions")
+
+    index := mgo.Index{
+        Key: []string{"releasenumber", "productname", "vendorname"},
+        Unique: true,
+    }
+    err = versions.EnsureIndex(index)
+    if err != nil {
+        return err
+    }
+
     if err := versions.Insert(&Version{version.ReleaseNumber, version.ReleaseDate, version.ProductName, version.VendorName}); err != nil{
         return err
     }

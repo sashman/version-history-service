@@ -8,8 +8,6 @@ import (
     "github.com/gorilla/context"
     "gopkg.in/mgo.v2/bson"
     "github.com/julienschmidt/httprouter"
-    "log"
-    "fmt"
 )
 
 type VersionController struct {

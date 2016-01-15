@@ -35,13 +35,13 @@ func Router(db *mgo.Database) *httprouter.Router {
 
 	version_controller := &VersionController{Render: render.New(render.Options{})}
 
-	// GET /products
+	// GET /versions
 	r.GET("/versions", version_controller.Action(version_controller.Index, db))
 
-	// GET /products/vendor_name/name
+	// GET /versions/vendor_name/product_name/release_number
 	r.GET("/versions/:vendor_name/:product_name/:release_number", version_controller.Action(version_controller.Show, db))
 	
-	// POST /products
+	// POST /versions
 	r.POST("/versions", version_controller.Action(version_controller.Create, db))
 
 

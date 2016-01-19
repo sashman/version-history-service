@@ -41,7 +41,7 @@ func (c *VersionController) Create(rw http.ResponseWriter, r *http.Request, db *
     versions := db.C("versions")
 
     index := mgo.Index{
-        Key: []string{"releasenumber", "productname", "vendorname"},
+        Key: []string{"releasedate", "releasenumber", "productname", "vendorname"},
         Unique: true,
     }
     err = versions.EnsureIndex(index)

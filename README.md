@@ -36,7 +36,7 @@ Web API to store versions and release based on products and vendors. This is pri
 #### View all versions
 * GET /versions
 
-#### View a release number for a product of a vendor
+#### View a version for a product of a vendor
 * GET /versions/vendor_name/product_name/release_number
 
 #### Create a new version

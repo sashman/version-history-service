@@ -32,6 +32,7 @@ func (c *VersionController) Create(rw http.ResponseWriter, r *http.Request, db *
     decoder := json.NewDecoder(r.Body)
     var version Version
     var product Product
+    var vendor Vendor
 
     err := decoder.Decode(&version)
     if err != nil {
@@ -54,8 +55,43 @@ func (c *VersionController) Create(rw http.ResponseWriter, r *http.Request, db *
     }
 
     if err := db.C("products").Find(bson.M{"name": version.ProductName, "vendorname": version.VendorName}).One(&product); err != nil {
-        return err
+        if err == mgo.ErrNotFound {
+
+            products := db.C("products")
+            if err := products.Insert(&Product{Name: version.ProductName, VendorName: version.VendorName}); err != nil{
+                return err
+            }
+
+            if err := db.C("vendors").Find(bson.M{"name": version.VendorName}).One(&vendor); err != nil {
+                if err == mgo.ErrNotFound {
+                    verndors := db.C("vendors")
+
+                    if err := verndors.Insert(&Vendor{Name: version.VendorName,}); err != nil {
+                        return err
+                    }
+
+                    if err := db.C("vendors").Find(bson.M{"name": version.VendorName}).One(&vendor); err != nil {
+                        return err
+                    }
+                    
+                } else {
+                    return err
+                }
+            }
+
+            change := bson.M{"$push": bson.M{"productnames": product.Name}} 
+            db.C("vendors").Update(vendor, change) 
+
+            if err := db.C("products").Find(bson.M{"name": version.ProductName, "vendorname": version.VendorName}).One(&product); err != nil {
+                return err
+            }
+
+        } else {
+            return err
+        }
     }
+
+
 
     if &product.LatestVersion == nil || product.LatestVersion.ReleaseDate.Before(version.ReleaseDate) {
         change := bson.M{"$set": bson.M{"latestversion": version}} 

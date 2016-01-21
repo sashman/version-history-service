@@ -25,8 +25,34 @@ RUN	yum -y update && yum clean all \
 	&& yum -y install sqlite-devel xz-libs 
 
 RUN	yum -y install http://ftp.riken.jp/Linux/fedora/epel/6/i386/epel-release-6-8.noarch.rpm
-RUN yum -y install golang
-RUN yum -y install mongodb-org
 
-RUN	mkdir /Application
+RUN rpm -i 'http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm'
+RUN rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+RUN yum -y --enablerepo=rpmforge-extras update git
+
+ENV GO_VERSION 1.5
+ENV GO_WRAPPER_COMMIT 6ea1f29b1fe7e6b0b8eb89493ed5e06bac454654
+
+RUN curl -sSL https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz \
+    | tar -v -C /usr/local -xz
+
+RUN mkdir -p /Application
+ENV PATH /go/bin:/usr/local/go/bin:$PATH
+ENV GOPATH /Application
+ENV GOBIN $GOPATH/bin
+
+RUN mkdir -p /go/src/app /go/bin && chmod -R 777 /go
+
+RUN curl https://raw.githubusercontent.com/docker-library/golang/${GO_WRAPPER_COMMIT}/1.5/go-wrapper \
+    -o /usr/local/bin/go-wrapper \
+    && chmod 755 /usr/local/bin/go-wrapper
+
+RUN yum -y install epel-release; yum clean all
+RUN yum -y install mongodb-server; yum clean all
+RUN mkdir -p /data/db
+
 COPY	Application /Application
+RUN	cd /Application && go get . 
+RUN	cd /Application && go build 
+
+EXPOSE 8080

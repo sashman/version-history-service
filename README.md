@@ -7,8 +7,8 @@ Web API to store versions and release based on products and vendors. This is pri
 
 ## Set up
 * Start Mongo with `mongod`
-* Build project `go build`
-* Run `versionHistoryService`
+* Build project `cd Application && go build`
+* Run `Application`
 * The service should be running on `localhost:8080` by default
 
 ## Available endpoints

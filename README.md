@@ -1,7 +1,7 @@
 # versionHistoryService
 Web API to store versions and release based on products and vendors. This is primary aimed at storing antivirus version history.
 
-***This version is a prototype only and can be thrown away for a reimplementation***
+***This version is a prototype proof of concept only and can be thrown away for a reimplementation***
 
 ## Prerequisites
 * Go https://golang.org/dl/

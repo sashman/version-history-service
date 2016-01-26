@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2"
+	"versionHistoryService/Godeps/_workspace/src/gopkg.in/mgo.v2"
 )
 
 func main() {

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2"
-	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2/bson"
+	"versionHistoryService/Godeps/_workspace/src/gopkg.in/mgo.v2"
+	"versionHistoryService/Godeps/_workspace/src/gopkg.in/mgo.v2/bson"
 )
 
 type Person struct {

@@ -2,9 +2,9 @@ package main
 
 import (
 	"net/http"
-	"versionHistoryService/Application/Godeps/_workspace/src/github.com/gorilla/context"
-	"versionHistoryService/Application/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
-	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2"
+	"versionHistoryService/Godeps/_workspace/src/github.com/gorilla/context"
+	"versionHistoryService/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
+	"versionHistoryService/Godeps/_workspace/src/gopkg.in/mgo.v2"
 )
 
 // Action defines a standard function signature for us to use when creating

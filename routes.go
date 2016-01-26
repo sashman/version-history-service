@@ -1,9 +1,9 @@
 package main
 
 import (
-	"versionHistoryService/Application/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
-	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2"
-	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/unrolled/render.v1"
+	"versionHistoryService/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
+	"versionHistoryService/Godeps/_workspace/src/gopkg.in/mgo.v2"
+	"versionHistoryService/Godeps/_workspace/src/gopkg.in/unrolled/render.v1"
 )
 
 func Router(db *mgo.Database) *httprouter.Router {

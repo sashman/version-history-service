@@ -13,7 +13,7 @@ func main() {
 		port = "8080"
 	}
 
-	db_host := os.Getenv("DATABASE_HOST")
+	db_host := os.Getenv("MONGOLAB_URI")
 	if db_host == "" {
 		db_host = "localhost"
 	}

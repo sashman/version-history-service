@@ -1,118 +1,116 @@
 package main
 
 import (
-    "net/http"
-    "gopkg.in/mgo.v2"
-    "encoding/json"
-    "gopkg.in/unrolled/render.v1"
-    "github.com/gorilla/context"
-    "gopkg.in/mgo.v2/bson"
-    "github.com/julienschmidt/httprouter"
+	"encoding/json"
+	"net/http"
+	"versionHistoryService/Application/Godeps/_workspace/src/github.com/gorilla/context"
+	"versionHistoryService/Application/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
+	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2"
+	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/mgo.v2/bson"
+	"versionHistoryService/Application/Godeps/_workspace/src/gopkg.in/unrolled/render.v1"
 )
 
 type VersionController struct {
-    AppController
-    *render.Render
+	AppController
+	*render.Render
 }
 
-func (c *VersionController) Index(rw http.ResponseWriter, r *http.Request, db *mgo.Database ) error {
-    var results []Version
+func (c *VersionController) Index(rw http.ResponseWriter, r *http.Request, db *mgo.Database) error {
+	var results []Version
 
-    err := db.C("versions").Find(nil).All(&results)
-    if err != nil {
-        return err
-    }
+	err := db.C("versions").Find(nil).All(&results)
+	if err != nil {
+		return err
+	}
 
-    c.JSON(rw, 200, results)
+	c.JSON(rw, 200, results)
 
-    return nil
+	return nil
 }
 
-func (c *VersionController) Create(rw http.ResponseWriter, r *http.Request, db *mgo.Database ) error {
-    decoder := json.NewDecoder(r.Body)
-    var version Version
-    var product Product
-    var vendor Vendor
+func (c *VersionController) Create(rw http.ResponseWriter, r *http.Request, db *mgo.Database) error {
+	decoder := json.NewDecoder(r.Body)
+	var version Version
+	var product Product
+	var vendor Vendor
 
-    err := decoder.Decode(&version)
-    if err != nil {
-        return err
-    }
-    
-    versions := db.C("versions")
+	err := decoder.Decode(&version)
+	if err != nil {
+		return err
+	}
 
-    index := mgo.Index{
-        Key: []string{"releasedate", "releasenumber", "productname", "vendorname"},
-        Unique: true,
-    }
-    err = versions.EnsureIndex(index)
-    if err != nil {
-        return err
-    }
+	versions := db.C("versions")
 
-    if err := versions.Insert(&Version{version.ReleaseNumber, version.ReleaseDate, version.ProductName, version.VendorName}); err != nil{
-        return err
-    }
+	index := mgo.Index{
+		Key:    []string{"releasedate", "releasenumber", "productname", "vendorname"},
+		Unique: true,
+	}
+	err = versions.EnsureIndex(index)
+	if err != nil {
+		return err
+	}
 
-    if err := db.C("products").Find(bson.M{"name": version.ProductName, "vendorname": version.VendorName}).One(&product); err != nil {
-        if err == mgo.ErrNotFound {
+	if err := versions.Insert(&Version{version.ReleaseNumber, version.ReleaseDate, version.ProductName, version.VendorName}); err != nil {
+		return err
+	}
 
-            products := db.C("products")
-            if err := products.Insert(&Product{Name: version.ProductName, VendorName: version.VendorName}); err != nil{
-                return err
-            }
+	if err := db.C("products").Find(bson.M{"name": version.ProductName, "vendorname": version.VendorName}).One(&product); err != nil {
+		if err == mgo.ErrNotFound {
 
-            if err := db.C("vendors").Find(bson.M{"name": version.VendorName}).One(&vendor); err != nil {
-                if err == mgo.ErrNotFound {
-                    verndors := db.C("vendors")
+			products := db.C("products")
+			if err := products.Insert(&Product{Name: version.ProductName, VendorName: version.VendorName}); err != nil {
+				return err
+			}
 
-                    if err := verndors.Insert(&Vendor{Name: version.VendorName,}); err != nil {
-                        return err
-                    }
+			if err := db.C("vendors").Find(bson.M{"name": version.VendorName}).One(&vendor); err != nil {
+				if err == mgo.ErrNotFound {
+					verndors := db.C("vendors")
 
-                    if err := db.C("vendors").Find(bson.M{"name": version.VendorName}).One(&vendor); err != nil {
-                        return err
-                    }
-                    
-                } else {
-                    return err
-                }
-            }
+					if err := verndors.Insert(&Vendor{Name: version.VendorName}); err != nil {
+						return err
+					}
 
-            change := bson.M{"$push": bson.M{"productnames": product.Name}} 
-            db.C("vendors").Update(vendor, change) 
+					if err := db.C("vendors").Find(bson.M{"name": version.VendorName}).One(&vendor); err != nil {
+						return err
+					}
 
-            if err := db.C("products").Find(bson.M{"name": version.ProductName, "vendorname": version.VendorName}).One(&product); err != nil {
-                return err
-            }
+				} else {
+					return err
+				}
+			}
 
-        } else {
-            return err
-        }
-    }
+			change := bson.M{"$push": bson.M{"productnames": product.Name}}
+			db.C("vendors").Update(vendor, change)
 
+			if err := db.C("products").Find(bson.M{"name": version.ProductName, "vendorname": version.VendorName}).One(&product); err != nil {
+				return err
+			}
 
+		} else {
+			return err
+		}
+	}
 
-    if &product.LatestVersion == nil || product.LatestVersion.ReleaseDate.Before(version.ReleaseDate) {
-        change := bson.M{"$set": bson.M{"latestversion": version}} 
-        if err := db.C("products").Update(bson.M{"name": version.ProductName, "vendorname": version.VendorName}, change); err != nil {
-            return err
-        }
-    }
+	if &product.LatestVersion == nil || product.LatestVersion.ReleaseDate.Before(version.ReleaseDate) {
+		change := bson.M{"$set": bson.M{"latestversion": version}}
+		if err := db.C("products").Update(bson.M{"name": version.ProductName, "vendorname": version.VendorName}, change); err != nil {
+			return err
+		}
+	}
 
-    return err
+	return err
 }
 
-func (c *VersionController) Show(rw http.ResponseWriter, r *http.Request, db *mgo.Database ) error {
-    params := context.Get(r, "params").(httprouter.Params)
-    var results Version
+func (c *VersionController) Show(rw http.ResponseWriter, r *http.Request, db *mgo.Database) error {
+	params := context.Get(r, "params").(httprouter.Params)
+	var results Version
 
-    err := db.C("versions").Find(bson.M{"vendorname": params.ByName("vendor_name"), "productname": params.ByName("name"), "releasenumber": params.ByName("release_number")}).One(&results)
-    if err != nil {
-        return err
-    }
+	err := db.C("versions").Find(bson.M{"vendorname": params.ByName("vendor_name"), "productname": params.ByName("name"), "releasenumber": params.ByName("release_number")}).One(&results)
+	if err != nil {
+		return err
+	}
 
-    c.JSON(rw, 200, results)
+	c.JSON(rw, 200, results)
 
-    return nil
+	return nil
 }

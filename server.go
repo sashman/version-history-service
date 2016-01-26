@@ -26,7 +26,7 @@ func main() {
 		panic(err)
 	}
 
-	db := session.DB("av_version")
+	db := session.DB("heroku_k8t98p5d")
 
 	defer session.Close()
 

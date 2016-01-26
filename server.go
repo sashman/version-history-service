@@ -15,8 +15,10 @@ func main() {
 
 	db_host := os.Getenv("DATABASE_HOST")
 	if db_host == "" {
-		fmt.Printf("No db host given, falling back to localhost")
+		fmt.Printf("No db host given, falling back to localhost\n")
 		db_host = "localhost"
+	} else {
+		fmt.Printf("Connecting to %v\n", db_host)
 	}
 
 	session, err := mgo.Dial(db_host)

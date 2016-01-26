@@ -15,6 +15,7 @@ func main() {
 
 	db_host := os.Getenv("DATABASE_HOST")
 	if db_host == "" {
+		fmt.Printf("No db host given, falling back to localhost")
 		db_host = "localhost"
 	}
 
